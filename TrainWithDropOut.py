@@ -1,4 +1,3 @@
-from calendar import EPOCH
 import time
 import torch
 import data
@@ -129,3 +128,17 @@ if __name__ == "__main__":
         if count > 5:
             print(f'Early Stop at epoch {epoch}')
             break
+
+    with open(SAVE_DIR, 'rb') as f:
+        model = torch.load(f).to(device)
+        model.eval()
+        total_loss = 0.
+        with torch.no_grad():
+            for i, (X ,y) in enumerate(test_loader):
+                X, y = X.to(device), y.to(device)
+                out = model(X)
+                loss = criterion(out, y)
+                total_loss += loss.item()
+            test_loss = total_loss/len(test_loader)
+        print('| End of training | test loss {:5.2f} | test ppl {:8.2f}'.format(
+        test_loss, math.exp(test_loss)))
